@@ -44,11 +44,21 @@ namespace WeatherApp.ViewModel
         {
             get { return selectedCity; }
             set {
-                    selectedCity = value;
-                    OnPropertyChanged("SelectedCity");
+                if (value == null)
+                {
+                    Console.WriteLine("SelectedCity is being set to null.");
+                    return;
+                }
+                selectedCity = value;
+                OnPropertyChanged("SelectedCity");
+                if (selectedCity != null)
+                {
                     GetCurrentConditions();
-                    
+                }
+
+
             }
+          
         }
 
         public SearchCommand SearchCommand { get; set; }
