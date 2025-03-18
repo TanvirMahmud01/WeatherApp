@@ -82,14 +82,34 @@ namespace WeatherApp.ViewModel
 
         private async void GetCurrentConditions()
         {
+
             if (selectedCity == null)
             {
                 // Handle the null case
+                Console.WriteLine("SelectedCity is null.");
                 return;
             }
-            Query = string.Empty;
-            Cities.Clear();
-            CurrentConditions = await AccuWeatherHelper.GetCurrentConditions(selectedCity.Key); 
+
+            try
+            {
+                Query = string.Empty;
+                Cities.Clear();
+                var conditions = await AccuWeatherHelper.GetCurrentConditions(selectedCity.Key);
+
+                if (conditions == null)
+                {
+                    // Handle the case where conditions are null
+                    Console.WriteLine("CurrentConditions is null.");
+                    return;
+                }
+
+                CurrentConditions = conditions;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Exception in GetCurrentConditions: {ex.Message}");
+            }
         }
 
         public async Task MakeQuery()
