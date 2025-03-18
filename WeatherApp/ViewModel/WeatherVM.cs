@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WeatherApp.Model;
+using WeatherApp.ViewModel.Commands;
 using WeatherApp.ViewModel.Helpers;
 
 namespace WeatherApp.ViewModel
@@ -21,6 +23,8 @@ namespace WeatherApp.ViewModel
                 OnPropertyChanged("Query");
                 }
         }
+
+        public ObservableCollection<City> Cities { get; set; }
 
         private CurrentConditions currentConditions;
 
@@ -39,11 +43,15 @@ namespace WeatherApp.ViewModel
         public City SelectedCity
         {
             get { return selectedCity; }
-            set { 
-                selectedCity = value;
-                OnPropertyChanged("SelectedCity");
+            set {
+                    selectedCity = value;
+                    OnPropertyChanged("SelectedCity");
+                    GetCurrentConditions();
+                    
             }
         }
+
+        public SearchCommand SearchCommand { get; set; }
 
         public WeatherVM()
         {
@@ -62,16 +70,37 @@ namespace WeatherApp.ViewModel
                 {
                     Metric = new Units
                     {
-                        Value = -11
+                        Value = "-11"
                     }
                 }
             };
             }
+
+            SearchCommand = new SearchCommand(this);
+            Cities = new ObservableCollection<City>();
+        }
+
+        private async void GetCurrentConditions()
+        {
+            if (selectedCity == null)
+            {
+                // Handle the null case
+                return;
+            }
+            Query = string.Empty;
+            Cities.Clear();
+            CurrentConditions = await AccuWeatherHelper.GetCurrentConditions(selectedCity.Key); 
         }
 
         public async Task MakeQuery()
         {
             var cities = await AccuWeatherHelper.GetCities(Query);
+
+            Cities.Clear();
+            foreach( var city in cities)
+            {
+                Cities.Add(city);
+            }
         }
 
 
